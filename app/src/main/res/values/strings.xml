@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">GoogleImageSearcher</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="button_search">Search</string>
+    <string name="query_prompt">Enter search query</string>
+    <string name="image_view_content_description">Image result</string>
+    <string name="image_title_text_holder">Image Title</string>
+    <string name="title_activity_full_scren">Full Screen Activity</string>
+    <string name="no_connection_message">No Connection, Try again later!!!</string>
+    <string name="failure_message">Failed to get data from google image search</string>
+    <string name="title_search_label">Search</string>
+    <string name="settings_title">settings</string>
+    <string name="image_size_label">Image Size</string>
+    <string name="color_filter_label">Color Filter</string>
+    <string name="image_type_label">Image Type</string>
+    <string name="site_filter_label">Site Filter</string>
+</resources>

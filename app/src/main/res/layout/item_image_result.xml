@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_alignRight="@+id/ivImage"
+    android:layout_alignEnd="@+id/ivImage"
+    android:background="@drawable/backgroud_list_view"
+    android:layout_height="match_parent">
+
+    <com.etsy.android.grid.util.DynamicHeightImageView
+        android:id="@+id/ivImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/image_title_text_holder"
+        android:id="@+id/tvImageTitle"
+        android:paddingTop="5dp"
+        android:textSize="10sp"
+        android:layout_below="@+id/ivImage"
+        android:layout_alignLeft="@+id/ivImage"
+        android:layout_alignStart="@+id/ivImage"
+        android:layout_alignRight="@+id/ivImage"
+        android:layout_alignEnd="@+id/ivImage"
+        android:textColor="#000000"
+        android:maxLines="1"/>
+</RelativeLayout>
