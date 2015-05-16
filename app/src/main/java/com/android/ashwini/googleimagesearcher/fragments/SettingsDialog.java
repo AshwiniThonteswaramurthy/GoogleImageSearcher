@@ -18,15 +18,11 @@ import android.widget.TextView;
 import com.android.ashwini.googleimagesearcher.R;
 import com.android.ashwini.googleimagesearcher.helpers.SearchFilter;
 
-import java.util.Arrays;
-
 public class SettingsDialog extends DialogFragment implements TextView.OnEditorActionListener {
     private Spinner spImageSize;
     private Spinner spColorFilter;
     private Spinner spImageType;
     private EditText etSiteFilter;
-    private Button btnSave;
-    private Button btnCancel;
     private SearchFilter searchFilter;
 
     @Nullable
@@ -34,7 +30,8 @@ public class SettingsDialog extends DialogFragment implements TextView.OnEditorA
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.settings, null, false);
-        searchFilter = new SearchFilter();
+        searchFilter = SearchFilter.getInstance();
+
         getDialog().setTitle("Advanced Filters");
         getDialog().getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -46,7 +43,7 @@ public class SettingsDialog extends DialogFragment implements TextView.OnEditorA
 
         reloadSavedSettings();
 
-        btnCancel = (Button) view.findViewById(R.id.btnCancel);
+        Button btnCancel = (Button) view.findViewById(R.id.btnCancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,11 +51,10 @@ public class SettingsDialog extends DialogFragment implements TextView.OnEditorA
             }
         });
 
-        btnSave = (Button) view.findViewById(R.id.btnSave);
+        Button btnSave = (Button) view.findViewById(R.id.btnSave);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO somehow make it available for future searches
                 //Get all the properties
                 if (etSiteFilter.getText() != null) {
                     String as_sitesearch = String.valueOf(etSiteFilter.getText());
@@ -95,18 +91,14 @@ public class SettingsDialog extends DialogFragment implements TextView.OnEditorA
     }
 
     public void reloadSavedSettings() {
-        String imgType = null;
-        if (searchFilter.containsKey(SearchFilter.IMAGE_TYPE_KEY)) {
-            imgType = searchFilter.get(SearchFilter.IMAGE_TYPE_KEY);
-            int imgTypePosition = getIndexFromSpinner(spImageType, imgType);
-            if (imgTypePosition != -1) {
-                spImageType.setSelection(imgTypePosition);
-            }
-        }
-        String imgsz = searchFilter.get(SearchFilter.IMAGE_SIZE_KEY);
-        String color = searchFilter.get(SearchFilter.IMAGE_COLOR_KEY);
-        int imgTypeIndex = Arrays.asList((getResources().getStringArray(R.array.imgtype))).indexOf(imgType);
-        spImageType.setSelection(imgTypeIndex);
+        String imgType = searchFilter.get(SearchFilter.IMAGE_TYPE_KEY);
+        spImageType.setSelection(getIndexFromSpinner(spImageType, imgType));
+        String imgColor = searchFilter.get(SearchFilter.IMAGE_COLOR_KEY);
+        spColorFilter.setSelection(getIndexFromSpinner(spColorFilter, imgColor));
+        String imgSize = searchFilter.get(SearchFilter.IMAGE_SIZE_KEY);
+        spImageSize.setSelection(getIndexFromSpinner(spImageSize, imgSize));
+        etSiteFilter.setText(searchFilter.get(SearchFilter.IMAGE_SEARCH_SITE_KEY));
+
     }
 
     private int getIndexFromSpinner(Spinner spinner, String valueToBeSet) {

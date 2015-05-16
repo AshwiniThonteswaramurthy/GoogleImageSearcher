@@ -2,7 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.android.ashwini.googleimagesearcher.activities.FullScrenActivity">
+    tools:context="com.android.ashwini.googleimagesearcher.activities.FullScreenActivity">
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:id="@+id/loadingPanel"/>
 
     <com.android.ashwini.googleimagesearcher.helpers.TouchImageView
         android:id="@+id/tivFullScreenImage"

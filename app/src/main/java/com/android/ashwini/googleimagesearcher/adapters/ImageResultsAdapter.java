@@ -3,7 +3,6 @@ package com.android.ashwini.googleimagesearcher.adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,28 +30,26 @@ public class ImageResultsAdapter extends ArrayAdapter<ImageResult> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         final ImageResult imageResult = getItem(position);
+
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_image_result, parent, false);
         }
+
         final DynamicHeightImageView ivImage = (DynamicHeightImageView) convertView.findViewById(R.id.ivImage);
-//        ivImage.setImageResource(0);
 
         TextView tvImageTitle = (TextView) convertView.findViewById(R.id.tvImageTitle);
         tvImageTitle.setText(Html.fromHtml(imageResult.getTitle()));
 
         Picasso.with(getContext())
                 .load(imageResult.getThumbnailUrl())
+                .resize(Integer.parseInt(imageResult.getThumbnailWidth()), Integer.parseInt(imageResult.getThumbnailHeight()))
                 .into(ivImage);
 
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bundle data = new Bundle();
-                data.putString("url", imageResult.getImageUrl());
-                data.putInt("width", Integer.parseInt(imageResult.getWidth()));
-                data.putInt("height", Integer.parseInt(imageResult.getHeight()));
                 Intent intent = new Intent(getContext(), FullScreenActivity.class);
-                intent.putExtras(data);
+                intent.putExtra("image", imageResult);
                 activity.startActivityForResult(intent, 200);
             }
         });

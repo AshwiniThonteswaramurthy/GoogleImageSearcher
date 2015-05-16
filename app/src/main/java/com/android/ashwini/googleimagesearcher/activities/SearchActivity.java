@@ -14,13 +14,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.android.ashwini.googleimagesearcher.R;
 import com.android.ashwini.googleimagesearcher.adapters.ImageResultsAdapter;
 import com.android.ashwini.googleimagesearcher.fragments.SettingsDialog;
+import com.android.ashwini.googleimagesearcher.helpers.EndlessScrollListener;
 import com.android.ashwini.googleimagesearcher.helpers.NetworkHelper;
 import com.android.ashwini.googleimagesearcher.helpers.SearchFilter;
 import com.android.ashwini.googleimagesearcher.models.ImageResult;
@@ -33,74 +33,55 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 
-public class SearchActivity extends ActionBarActivity implements SettingsDialog.OnSettingsSaveListener{
+public class SearchActivity extends ActionBarActivity implements SettingsDialog.OnSettingsSaveListener {
 
-    private StaggeredGridView gvImageSearchResult;
     private ArrayList<ImageResult> imageResults;
     private ImageResultsAdapter adapter;
     private SearchFilter searchFilter;
-    private Map<String, String> params;
-    private final int MAX_IMAGES_TO_BE_LOADED = 64;
-    private int visibleThreshold = 5;
-    private int currentPage = 0;
-    private int previousTotal = 0;
-    private boolean loading = true;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
+        setTitle("Google image search");
         Activity activity = this;
         imageResults = new ArrayList<>();
-        searchFilter = new SearchFilter();
-        params = new HashMap<>();
+        searchFilter = SearchFilter.getInstance();
         adapter = new ImageResultsAdapter(getBaseContext(), imageResults, activity);
 
-        gvImageSearchResult = (StaggeredGridView) findViewById(R.id.sgvImageSearchResult);
+        StaggeredGridView gvImageSearchResult = (StaggeredGridView) findViewById(R.id.sgvImageSearchResult);
         gvImageSearchResult.setAdapter(adapter);
 
+        //Endless scrolling
+        endlessScrolling(gvImageSearchResult);
         //TODO ViewHolder Pattern
+
+        displayDetailedViewOfImage(gvImageSearchResult);
+    }
+
+    private void displayDetailedViewOfImage(StaggeredGridView gvImageSearchResult) {
         gvImageSearchResult.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 if (NetworkHelper.isNetworkAvailable((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE))) {
-                    ImageResult image = imageResults.get(position);
-                    Intent data = new Intent(SearchActivity.this, FullScreenActivity.class);
-                    //TODO Parcelable
-                    data.putExtra("url", image.getImageUrl());
-                    data.putExtra("width", image.getWidth());
-                    data.putExtra("height", image.getHeight());
-                    startActivity(data);
+                    ImageResult image = (ImageResult) adapterView.getItemAtPosition(position);
+                    Intent intent = new Intent(SearchActivity.this, FullScreenActivity.class);
+                    intent.putExtra("image", image);
+                    startActivity(intent);
                 }
             }
         });
+    }
 
-        // Endless scrolling
-        gvImageSearchResult.setOnScrollListener(new AbsListView.OnScrollListener() {
+    private void endlessScrolling(StaggeredGridView gvImageSearchResult) {
+        gvImageSearchResult.setOnScrollListener(new EndlessScrollListener() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (loading) {
-                    if (totalItemCount > previousTotal) {
-                        loading = false;
-                        previousTotal = totalItemCount;
-                        currentPage++;
-                    }
-                }
-                if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                    paginateImageSearchResult();
-                    loading = true;
-                }
+            public void onLoadMore(int page, int totalItemsCount) {
+                customLoadMoreDataFromApi(page);
             }
         });
     }
@@ -118,31 +99,17 @@ public class SearchActivity extends ActionBarActivity implements SettingsDialog.
             public boolean onQueryTextSubmit(String query) {
                 imageResults.clear();
                 adapter.notifyDataSetChanged();
-                //adding defaults
-                params.putAll(searchFilter.addDefaults());
-                //adding specific query
-                params.put(SearchFilter.IMAGE_SEARCH_QUERY_KEY, query);
-                performGoogleSearch(params);
+                searchFilter.put(SearchFilter.IMAGE_SEARCH_QUERY_KEY, query);
+                searchFilter.put(SearchFilter.IMAGE_SEARCH_START_INDEX_KEY, String.valueOf(0));
+                performGoogleSearch(searchFilter.getAll());
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                //TODO same as above
                 return false;
             }
         });
-
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                //TODO not sure its reloading the view
-                imageResults.clear();
-                adapter.notifyDataSetChanged();
-                return true;
-            }
-        });
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -168,7 +135,8 @@ public class SearchActivity extends ActionBarActivity implements SettingsDialog.
     public void performGoogleSearch(Map<String, String> params) {
 
         if (params.get(SearchFilter.IMAGE_SEARCH_QUERY_KEY) != null) {
-//            //check for end of limit 8 pages(each page 8 images)
+            //check for end of limit 8 pages(each page 8 images)
+            int MAX_IMAGES_TO_BE_LOADED = 64;
             if (adapter.getCount() == MAX_IMAGES_TO_BE_LOADED) {
                 //no more data to load so return
                 return;
@@ -176,7 +144,6 @@ public class SearchActivity extends ActionBarActivity implements SettingsDialog.
 
             if (NetworkHelper.isNetworkAvailable((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE))) {
                 AsyncHttpClient client = new AsyncHttpClient();
-                searchFilter.put(params);
                 String url = searchFilter.buildSearchQuery();
                 Log.d("DEBUG", url);
 
@@ -200,7 +167,7 @@ public class SearchActivity extends ActionBarActivity implements SettingsDialog.
 
     public void openSettings(MenuItem item) {
         DialogFragment settingsDialog = new SettingsDialog();
-        settingsDialog.show(getFragmentManager(),"settings dialog");
+        settingsDialog.show(getFragmentManager(), "settings dialog");
     }
 
     @Override
@@ -208,4 +175,13 @@ public class SearchActivity extends ActionBarActivity implements SettingsDialog.
         this.searchFilter.put(searchFilter.getAll());
         performGoogleSearch(this.searchFilter.getAll());
     }
+
+    public void customLoadMoreDataFromApi(int offset) {
+        if (offset == 0) {
+            adapter.clear();
+        }
+        paginateImageSearchResult();
+    }
+
+
 }
