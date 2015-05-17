@@ -17,7 +17,6 @@ import android.text.Html;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -43,11 +42,11 @@ public class FullScreenActivity extends ActionBarActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         final TouchImageView tivFullScreenImage = (TouchImageView) findViewById(R.id.tivFullScreenImage);
-        findViewById(R.id.loadingPanel).setVisibility(View.GONE);
-        //TODO placeholder
         if (NetworkHelper.isNetworkAvailable((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE))) {
             image = getIntent().getParcelableExtra("image");
             setTitle(Html.fromHtml(image.getTitle()));
+
+            tivFullScreenImage.setImageResource(0);
 
             Picasso.with(this)
                     .load(image.getImageUrl())
@@ -99,11 +98,6 @@ public class FullScreenActivity extends ActionBarActivity {
             case android.R.id.home:
                 finish();
                 return true;
-            //TODO work on this sharing via browser feature
-//            case R.id.shareViaBrowser:
-//                Intent shareViaBrowserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(image.getImageUrl()));
-//                startActivity(shareViaBrowserIntent);
-//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -116,7 +110,6 @@ public class FullScreenActivity extends ActionBarActivity {
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
         shareIntent.setType("image/*");
-
         shareActionProvider.setShareIntent(shareIntent);
     }
 
@@ -124,7 +117,6 @@ public class FullScreenActivity extends ActionBarActivity {
         ImageView imageView = (ImageView) findViewById(R.id.tivFullScreenImage);
         Drawable drawable = imageView.getDrawable();
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-        //TODO get title and description from google api
 
         String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "title", "description");
         return Uri.parse(path);

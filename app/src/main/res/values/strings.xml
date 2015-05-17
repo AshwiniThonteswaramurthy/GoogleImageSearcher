@@ -15,5 +15,8 @@
     <string name="image_size_label">Image Size</string>
     <string name="color_filter_label">Color Filter</string>
     <string name="image_type_label">Image Type</string>
-    <string name="site_filter_label">Site Filter</string>
+    <string name="site_filter_label">Site</string>
+    <string name="site_label_hint">flickr.com</string>
+    <string name="btn_save_label">save</string>
+    <string name="btn_cancel_label">cancel</string>
 </resources>

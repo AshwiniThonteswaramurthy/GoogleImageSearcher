@@ -19,7 +19,6 @@
         android:layout_height="wrap_content"
         android:text="@string/image_title_text_holder"
         android:id="@+id/tvImageTitle"
-        android:paddingTop="5dp"
         android:textSize="10sp"
         android:layout_below="@+id/ivImage"
         android:layout_alignLeft="@+id/ivImage"

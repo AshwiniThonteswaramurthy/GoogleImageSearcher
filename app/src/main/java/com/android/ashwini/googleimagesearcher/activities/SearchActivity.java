@@ -58,8 +58,8 @@ public class SearchActivity extends ActionBarActivity implements SettingsDialog.
 
         //Endless scrolling
         endlessScrolling(gvImageSearchResult);
-        //TODO ViewHolder Pattern
 
+        // triggers full screen image
         displayDetailedViewOfImage(gvImageSearchResult);
     }
 
@@ -81,7 +81,9 @@ public class SearchActivity extends ActionBarActivity implements SettingsDialog.
         gvImageSearchResult.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
-                customLoadMoreDataFromApi(page);
+                if (NetworkHelper.isNetworkAvailable((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE))) {
+                    customLoadMoreDataFromApi(page);
+                }
             }
         });
     }
@@ -155,10 +157,9 @@ public class SearchActivity extends ActionBarActivity implements SettingsDialog.
                     }
 
                     @Override
-                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                        Toast.makeText(getBaseContext(), getString(R.string.failure_message), Toast.LENGTH_SHORT).show();
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        Toast.makeText(getBaseContext(), throwable.getMessage() + "\n Check your interest connectivity!!!", Toast.LENGTH_SHORT).show();
                     }
-
                 });
             }
         }

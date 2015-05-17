@@ -10,7 +10,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/settings"
-        android:icon="@drawable/ic_set"
+        android:icon="@drawable/ic_action_settings"
         android:orderInCategory="5"
         android:onClick="openSettings"
         android:title="@string/settings_title"

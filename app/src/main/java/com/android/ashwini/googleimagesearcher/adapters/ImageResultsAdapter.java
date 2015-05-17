@@ -21,6 +21,12 @@ import java.util.List;
 public class ImageResultsAdapter extends ArrayAdapter<ImageResult> {
     private Activity activity;
 
+    private static class ViewHolder {
+        DynamicHeightImageView ivImage;
+        TextView tvImageTitle;
+
+    }
+
     public ImageResultsAdapter(Context context, List<ImageResult> images, Activity activity) {
         super(context, R.layout.item_image_result, images);
         this.activity = activity;
@@ -30,22 +36,28 @@ public class ImageResultsAdapter extends ArrayAdapter<ImageResult> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         final ImageResult imageResult = getItem(position);
+        // Check if an existing view is being reused, otherwise inflate the view
+        ViewHolder viewHolder; // view lookup cache stored in tag
 
         if (convertView == null) {
+            viewHolder = new ViewHolder();
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_image_result, parent, false);
+            viewHolder.ivImage = (DynamicHeightImageView) convertView.findViewById(R.id.ivImage);
+            viewHolder.tvImageTitle = (TextView) convertView.findViewById(R.id.tvImageTitle);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        final DynamicHeightImageView ivImage = (DynamicHeightImageView) convertView.findViewById(R.id.ivImage);
+        viewHolder.tvImageTitle.setText(Html.fromHtml(imageResult.getTitle()));
 
-        TextView tvImageTitle = (TextView) convertView.findViewById(R.id.tvImageTitle);
-        tvImageTitle.setText(Html.fromHtml(imageResult.getTitle()));
-
+        viewHolder.ivImage.setImageResource(0);
         Picasso.with(getContext())
                 .load(imageResult.getThumbnailUrl())
                 .resize(Integer.parseInt(imageResult.getThumbnailWidth()), Integer.parseInt(imageResult.getThumbnailHeight()))
-                .into(ivImage);
+                .into(viewHolder.ivImage);
 
-        ivImage.setOnClickListener(new View.OnClickListener() {
+        viewHolder.ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), FullScreenActivity.class);
