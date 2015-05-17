@@ -22,6 +22,7 @@ Completed user stories:
  * [x] Advanced : Improve the user interface and experiment with image assets and/or styling and coloring
  * [x] Bonus : Use the StaggeredGridView to display improve the grid of image results
  * [x] Bonus : User can zoom or pan images displayed in full-screen detail view
+ * [x] Bonus : Improved performance of the gridview displaying images with ViewHolder pattern.
  
 #### Demo 
 ----
